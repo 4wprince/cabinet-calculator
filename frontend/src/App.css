@@ -218,6 +218,75 @@ body {
   box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
 }
 
+.profile-btn {
+  background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+}
+
+.profile-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(156, 39, 176, 0.4);
+}
+
+.ai-btn {
+  background: linear-gradient(135deg, #FF6B6B 0%, #E84545 100%);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  font-size: 1.15rem;
+}
+
+.ai-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+}
+
+.ai-results {
+  margin-top: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFE5E5 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #FF6B6B;
+}
+
+.ai-results h2 {
+  color: #E84545;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.ai-image-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  border: 3px solid #FF6B6B;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.ai-image-container img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ai-prompt-info {
+  background: white;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.ai-prompt-info p {
+  margin: 10px 0;
+}
+
+.ai-prompt-info strong {
+  color: #E84545;
+}
+
 .svg-results {
   margin-top: 40px;
   padding: 30px;

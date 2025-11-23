@@ -54,6 +54,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [svgData, setSvgData] = useState(null);
+  const [profileSvgData, setProfileSvgData] = useState(null);
+  const [aiRenderData, setAiRenderData] = useState(null);
+  const [aiRenderData, setAiRenderData] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -163,6 +166,135 @@ function App() {
     }
   };
 
+  const handleGenerateProfile = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const payload = {
+        ...config,
+        drawerBaseA: drawerBaseA.enabled ? {
+          type: drawerBaseA.type,
+          position: drawerBaseA.position,
+          leftSize: drawerBaseA.leftSize,
+          rightSize: drawerBaseA.rightSize
+        } : null,
+        drawerBaseB: drawerBaseB.enabled ? {
+          type: drawerBaseB.type,
+          position: drawerBaseB.position,
+          leftSize: drawerBaseB.leftSize,
+          rightSize: drawerBaseB.rightSize
+        } : null
+      };
+
+      const response = await fetch(`${API_URL}/generate-profile-svg`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        const svgText = await response.text();
+        setProfileSvgData(svgText);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Profile generation failed');
+      }
+    } catch (err) {
+      setError('Failed to generate profile view.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateAIRender = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const payload = {
+        ...config,
+        drawerBaseA: drawerBaseA.enabled ? {
+          type: drawerBaseA.type,
+          position: drawerBaseA.position,
+          leftSize: drawerBaseA.leftSize,
+          rightSize: drawerBaseA.rightSize
+        } : null,
+        drawerBaseB: drawerBaseB.enabled ? {
+          type: drawerBaseB.type,
+          position: drawerBaseB.position,
+          leftSize: drawerBaseB.leftSize,
+          rightSize: drawerBaseB.rightSize
+        } : null
+      };
+
+      const response = await fetch(`${API_URL}/generate-ai-render`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAiRenderData(data);
+      } else {
+        setError(data.error || 'AI render generation failed');
+      }
+    } catch (err) {
+      setError('Failed to generate AI render. This can take 10-30 seconds, please wait...');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateAIRender = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const payload = {
+        ...config,
+        drawerBaseA: drawerBaseA.enabled ? {
+          type: drawerBaseA.type,
+          position: drawerBaseA.position,
+          leftSize: drawerBaseA.leftSize,
+          rightSize: drawerBaseA.rightSize
+        } : null,
+        drawerBaseB: drawerBaseB.enabled ? {
+          type: drawerBaseB.type,
+          position: drawerBaseB.position,
+          leftSize: drawerBaseB.leftSize,
+          rightSize: drawerBaseB.rightSize
+        } : null
+      };
+
+      const response = await fetch(`${API_URL}/generate-ai-render`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAiRenderData(data);
+      } else {
+        setError(data.error || 'AI render generation failed');
+      }
+    } catch (err) {
+      setError('Failed to generate AI render. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getDrawerWidths = (type) => {
     return type === '2drawer' ? [30, 36] : [12, 15, 18, 21, 24, 27, 30, 33, 36];
   };
@@ -170,8 +302,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Kitchen Cabinet Layout Calculator</h1>
-        <p className="subtitle">POC v1.0 - Complete System</p>
+        <h1>CabinetCloudAI</h1>
+        <p className="subtitle">AI-Powered Kitchen Design System</p>
       </header>
 
       <div className="container">
@@ -670,6 +802,22 @@ function App() {
           >
             {loading ? 'Generating...' : 'Generate Floor Plan'}
           </button>
+
+          <button 
+            className="calculate-btn profile-btn"
+            onClick={handleGenerateProfile}
+            disabled={loading}
+          >
+            {loading ? 'Generating...' : 'Generate Profile View'}
+          </button>
+
+          <button 
+            className="calculate-btn ai-btn"
+            onClick={handleGenerateAIRender}
+            disabled={loading}
+          >
+            {loading ? 'Generating AI Image...' : '✨ Generate AI Render'}
+          </button>
         </div>
 
         {error && (
@@ -773,7 +921,54 @@ function App() {
                 a.click();
               }}
             >
-              Download SVG
+              Download Floor Plan SVG
+            </button>
+          </div>
+        )}
+
+        {profileSvgData && (
+          <div className="svg-results">
+            <h2>Profile View (Front Elevation)</h2>
+            <div className="svg-container" dangerouslySetInnerHTML={{ __html: profileSvgData }} />
+            <button 
+              className="download-btn"
+              onClick={() => {
+                const blob = new Blob([profileSvgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'kitchen-profile-view.svg';
+                a.click();
+              }}
+            >
+              Download Profile View SVG
+            </button>
+          </div>
+        )}
+
+        {aiRenderData && (
+          <div className="ai-results">
+            <h2>✨ AI Generated Render</h2>
+            <div className="ai-image-container">
+              <img src={aiRenderData.image_url} alt="AI Generated Kitchen Render" />
+            </div>
+            <div className="ai-prompt-info">
+              <p><strong>Prompt Used:</strong> {aiRenderData.prompt}</p>
+              {aiRenderData.revised_prompt && aiRenderData.revised_prompt !== aiRenderData.prompt && (
+                <p><strong>DALL-E Revised:</strong> {aiRenderData.revised_prompt}</p>
+              )}
+            </div>
+            <button 
+              className="download-btn"
+              onClick={() => {
+                const a = document.createElement('a');
+                a.href = aiRenderData.image_url;
+                a.download = 'kitchen-ai-render.png';
+                a.target = '_blank';
+                a.click();
+              }}
+            >
+              Download AI Render
             </button>
           </div>
         )}
