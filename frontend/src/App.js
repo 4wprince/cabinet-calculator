@@ -53,6 +53,7 @@ function App() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [svgData, setSvgData] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -114,6 +115,49 @@ function App() {
       }
     } catch (err) {
       setError('Failed to connect to backend. Make sure the Python server is running.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateFloorPlan = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const payload = {
+        ...config,
+        drawerBaseA: drawerBaseA.enabled ? {
+          type: drawerBaseA.type,
+          position: drawerBaseA.position,
+          leftSize: drawerBaseA.leftSize,
+          rightSize: drawerBaseA.rightSize
+        } : null,
+        drawerBaseB: drawerBaseB.enabled ? {
+          type: drawerBaseB.type,
+          position: drawerBaseB.position,
+          leftSize: drawerBaseB.leftSize,
+          rightSize: drawerBaseB.rightSize
+        } : null
+      };
+
+      const response = await fetch(`${API_URL}/generate-overhead-svg`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        const svgText = await response.text();
+        setSvgData(svgText);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'SVG generation failed');
+      }
+    } catch (err) {
+      setError('Failed to generate floor plan.');
     } finally {
       setLoading(false);
     }
@@ -610,13 +654,23 @@ function App() {
           )}
         </div>
 
-        <button 
-          className="calculate-btn"
-          onClick={handleCalculate}
-          disabled={loading}
-        >
-          {loading ? 'Calculating...' : 'Calculate Layout'}
-        </button>
+        <div className="button-group">
+          <button 
+            className="calculate-btn"
+            onClick={handleCalculate}
+            disabled={loading}
+          >
+            {loading ? 'Calculating...' : 'Calculate Layout'}
+          </button>
+
+          <button 
+            className="calculate-btn svg-btn"
+            onClick={handleGenerateFloorPlan}
+            disabled={loading}
+          >
+            {loading ? 'Generating...' : 'Generate Floor Plan'}
+          </button>
+        </div>
 
         {error && (
           <div className="error-message">
@@ -701,6 +755,26 @@ function App() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {svgData && (
+          <div className="svg-results">
+            <h2>Floor Plan (Overhead View)</h2>
+            <div className="svg-container" dangerouslySetInnerHTML={{ __html: svgData }} />
+            <button 
+              className="download-btn"
+              onClick={() => {
+                const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'kitchen-floor-plan.svg';
+                a.click();
+              }}
+            >
+              Download SVG
+            </button>
           </div>
         )}
       </div>
