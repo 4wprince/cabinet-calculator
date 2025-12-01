@@ -56,7 +56,6 @@ function App() {
   const [svgData, setSvgData] = useState(null);
   const [profileSvgData, setProfileSvgData] = useState(null);
   const [aiRenderData, setAiRenderData] = useState(null);
-  const [aiRenderData, setAiRenderData] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
